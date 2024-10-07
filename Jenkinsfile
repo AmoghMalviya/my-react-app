@@ -27,7 +27,7 @@ node {
     }
 
      stage('Deploy on Minikube') {
-        withCredentials([file(credentialsId: 'kubeconfig-cred-id', variable: 'KUBECONFIG')]) {
+        withCredentials([file(credentialsId: 'KUBECONFIG', variable: 'KUBECONFIG')]) {
     bat '''
     kubectl delete deployment my-react-app-deployment || true
     kubectl delete service my-react-app-service || true
