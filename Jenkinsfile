@@ -9,12 +9,12 @@ node {
     }
 
     stage('Build React App') {
-        sh 'npm install'
-        sh 'npm run build'
+        bat 'npm install'
+        bat 'npm run build'
     }
 
     stage('Build Docker Image') {
-        sh "docker build -t ${imageName} ."
+        bat "docker build -t ${imageName} ."
     }
 
     stage('Tag and Push Docker Image to Nexus') {
