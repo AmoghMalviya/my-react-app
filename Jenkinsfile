@@ -3,6 +3,7 @@ node {
     def imageName = "my-react-app:latest"
     def dockerRegistry = "localhost:8082"  // Nexus container URL
     def nexusCredentialsId = "nexus"  // Use Jenkins credential for Nexus login
+    def kubeconfigPath = "C:\\Users\\amogh\\.kube\\config"
 
     stage('Clone Repository') {
         checkout scm
@@ -25,20 +26,21 @@ node {
         }
     }
 
-    stage('Deploy on Minikube') {
-        bat '''
-        kubectl delete deployment my-react-app-deployment || true
-        kubectl delete service my-react-app-service || true
+     stage('Deploy on Minikube') {
+        withEnv(["KUBECONFIG=${kubeconfigPath}"]) {
+            bat '''
+            kubectl delete deployment my-react-app-deployment || true
+            kubectl delete service my-react-app-service || true
 
-        kubectl create deployment my-react-app-deployment --image=${dockerRegistry}/${imageName}
-
-        kubectl expose deployment my-react-app-deployment --type=NodePort --port=80 --target-port=80 --name=my-react-app-service
-        '''
+            kubectl create deployment my-react-app-deployment --image=localhost:8082/my-react-app
+            kubectl expose deployment my-react-app-deployment --type=NodePort --port=80 --target-port=80 --name=my-react-app-service
+            '''
+        }
     }
 
     stage('Expose the App URL') {
-        def nodePort = sh(script: "kubectl get service my-react-app-service -o=jsonpath='{.spec.ports[0].nodePort}'", returnStdout: true).trim()
-        def minikubeIp = sh(script: "minikube ip", returnStdout: true).trim()
+        def nodePort = bat(script: "kubectl get service my-react-app-service -o=jsonpath='{.spec.ports[0].nodePort}'", returnStdout: true).trim()
+        def minikubeIp = bat(script: "minikube ip", returnStdout: true).trim()
         echo "App is running on http://${minikubeIp}:${nodePort}"
     }
 }
