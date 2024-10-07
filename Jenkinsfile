@@ -19,14 +19,14 @@ node {
 
     stage('Tag and Push Docker Image to Nexus') {
         withCredentials([usernamePassword(credentialsId: nexusCredentialsId, usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-            sh "docker login -u ${USERNAME} -p ${PASSWORD} ${dockerRegistry}"
-            sh "docker tag ${imageName} ${dockerRegistry}/${imageName}"
-            sh "docker push ${dockerRegistry}/${imageName}"
+            bat "docker login -u ${USERNAME} -p ${PASSWORD} ${dockerRegistry}"
+            bat "docker tag ${imageName} ${dockerRegistry}/${imageName}"
+            bat "docker push ${dockerRegistry}/${imageName}"
         }
     }
 
     stage('Deploy on Minikube') {
-        sh '''
+        bat '''
         kubectl delete deployment my-react-app-deployment || true
         kubectl delete service my-react-app-service || true
 
