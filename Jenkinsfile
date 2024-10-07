@@ -27,16 +27,9 @@ node {
     }
 
      stage('Deploy on Minikube') {
-        withCredentials([file(credentialsId: 'KUBECONFIG', variable: 'KUBECONFIG')]) {
-    bat '''
-    kubectl delete deployment my-react-app-deployment || true
-    kubectl delete service my-react-app-service || true
-
-    kubectl create deployment my-react-app-deployment --image=localhost:8082/my-react-app
-    kubectl expose deployment my-react-app-deployment --type=NodePort --port=80 --target-port=80 --name=my-react-app-service
-    '''
-}
-
+       withEnv(["KUBECONFIG=${kubeconfigPath}"]){
+           bat "kubectl version"
+       }
     }
 
     stage('Expose the App URL') {
